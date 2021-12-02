@@ -1,47 +1,17 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { addContact } from "./redux/actions";
 import shortid from "shortid";
 import ContactForm from "./components/ContactForm/ContactForm ";
 import Filter from "./components/Filter/Filter";
 import ContactList from "./components/ContactList/ContactList";
-import { configureStore } from "@reduxjs/toolkit";
-import { createReducer } from "@reduxjs/toolkit";
-import { combineReducers } from "redux";
-import { createAction } from "@reduxjs/toolkit";
 
 export default function App() {
   const [contacts, setContacts] = useState([]);
   const [filter, setFilter] = useState();
   const [name, setName] = useState();
   const [number, setNumber] = useState();
-
-  // Redux_______________________________
-
-  // Actions;
-  const itemsAdd = createAction("contacts/itemsAdd");
-  const itemsRemove = createAction("contacts/itemsRemove");
-  const filterAction = createAction("contacts/filter");
-
-  //Redusers
-  const itemsReduser = createReducer(
-    { contacts: { items: [] } },
-    {
-      [itemsAdd]: (state, action) => state + action.payload,
-      [itemsRemove]: (state, action) => state - action.payload,
-    }
-  );
-  const itemsFilter = createReducer(
-    { contacts: { filter: "" } },
-    {
-      [filterAction]: (state, action) => state,
-    }
-  );
-
-  const rootReduser = combineReducers({ itemsReduser, itemsFilter });
-
-  // Store;
-  const store = configureStore({ reducer: rootReduser });
-
-  // ___________________________________________
+  const dispatch = useDispatch();
 
   function handleChange(evt) {
     switch (evt.target.name) {
@@ -59,36 +29,40 @@ export default function App() {
   }
 
   function handleAddContact() {
-    if (
-      contacts.find((contact) => {
-        return contact.name === name;
-      })
-    ) {
-      alert(`${name} is already in contacts`);
-    } else {
-      const contactsArr = contacts;
-      const newContact = {
-        key: shortid.generate(),
-        name: name,
-        number: number,
-      };
+    // if (
+    //   contacts.find((contact) => {
+    //     return contact.name === name;
+    //   })
+    // ) {
+    //   alert(`${name} is already in contacts`);
+    // } else {
+    // const contactsArr = contacts;
+    const newContact = {
+      key: shortid.generate(),
+      name: name,
+      number: number,
+    };
 
-      setContacts([...contactsArr, newContact]);
+    // setContacts([...contactsArr, newContact]);
 
-      // LocalStorage-------
+    // LocalStorage-------
 
-      if (localStorage.getItem("contacts") === null) {
-        localStorage.setItem(
-          "contacts",
-          JSON.stringify([...contactsArr, newContact])
-        );
-      } else {
-        const temperaryArr = JSON.parse(localStorage.getItem("contacts"));
-        temperaryArr.push(newContact);
-        localStorage.setItem("contacts", JSON.stringify(temperaryArr));
-      }
-      // -------------------
-    }
+    // if (localStorage.getItem("contacts") === null) {
+    //   localStorage.setItem(
+    //     "contacts",
+    //     JSON.stringify([...contactsArr, newContact])
+    //   );
+    // } else {
+    //   const temperaryArr = JSON.parse(localStorage.getItem("contacts"));
+    //   temperaryArr.push(newContact);
+    //   localStorage.setItem("contacts", JSON.stringify(temperaryArr));
+    // }
+    // -------------------
+
+    // Redux_______________________
+    dispatch(addContact(newContact));
+    // ____________________________
+    // }
   }
 
   function filterContacts(evt) {
@@ -121,12 +95,12 @@ export default function App() {
       <h2>Contacts</h2>
       <Filter filterContacts={filterContacts} />
 
-      <ContactList
+      {/* <ContactList
         filter={filter}
         contacts={contacts}
         key={contacts.key}
         deleteContact={deleteContact}
-      />
+      /> */}
     </div>
   );
 }
