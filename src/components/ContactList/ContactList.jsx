@@ -1,11 +1,8 @@
 import React from "react";
-// import { useSelector } from "react-redux";
+
 import styles from "./ContactList.css";
 
 export default function ContactList({ filter, contacts, deleteContact }) {
-  // Redux_____________________________
-  // const contacts = useSelector((state) => state.contacts);
-  // __________________________________
   return (
     <div className="contacts">
       <ul className="contacts__list">

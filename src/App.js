@@ -1,17 +1,22 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addContact } from "./redux/actions";
+import { useDispatch, useSelector } from "react-redux";
+import { addContact, deleteContact, filterContacts } from "./redux/actions";
+import { store } from "./redux/store";
 import shortid from "shortid";
 import ContactForm from "./components/ContactForm/ContactForm ";
 import Filter from "./components/Filter/Filter";
 import ContactList from "./components/ContactList/ContactList";
 
 export default function App() {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState();
   const [name, setName] = useState();
   const [number, setNumber] = useState();
   const dispatch = useDispatch();
+  const contacts = useSelector((store) => {
+    return store.contactReducer;
+  });
+  const filter = useSelector((store) => {
+    return store.filterReducer;
+  });
 
   function handleChange(evt) {
     switch (evt.target.name) {
@@ -29,59 +34,31 @@ export default function App() {
   }
 
   function handleAddContact() {
-    // if (
-    //   contacts.find((contact) => {
-    //     return contact.name === name;
-    //   })
-    // ) {
-    //   alert(`${name} is already in contacts`);
-    // } else {
-    // const contactsArr = contacts;
-    const newContact = {
-      key: shortid.generate(),
-      name: name,
-      number: number,
-    };
+    if (
+      contacts.find((contact) => {
+        return contact.name === name;
+      })
+    ) {
+      alert(`${name} is already in contacts`);
+    } else {
+      const newContact = {
+        key: shortid.generate(),
+        name: name,
+        number: number,
+      };
 
-    // setContacts([...contactsArr, newContact]);
-
-    // LocalStorage-------
-
-    // if (localStorage.getItem("contacts") === null) {
-    //   localStorage.setItem(
-    //     "contacts",
-    //     JSON.stringify([...contactsArr, newContact])
-    //   );
-    // } else {
-    //   const temperaryArr = JSON.parse(localStorage.getItem("contacts"));
-    //   temperaryArr.push(newContact);
-    //   localStorage.setItem("contacts", JSON.stringify(temperaryArr));
-    // }
-    // -------------------
-
-    // Redux_______________________
-    dispatch(addContact(newContact));
-    // ____________________________
-    // }
+      dispatch(addContact(newContact));
+    }
   }
 
-  function filterContacts(evt) {
-    return setFilter(evt.target.value);
+  function filterer(evt) {
+    dispatch(filterContacts(evt.target.value));
   }
 
-  function deleteContact(evt) {
-    const contactsArr = contacts;
+  function removeContact(evt) {
     const id = evt.target.id;
-    const elementForRemove = contacts.find((item) => item.key === id);
-    const index = contactsArr.indexOf(elementForRemove);
-    contactsArr.splice(index, 1);
 
-    // LocalStorage-------
-    localStorage.removeItem("contacts");
-    localStorage.setItem("contacts", JSON.stringify(contactsArr));
-    // --------------------
-
-    setContacts([...contactsArr]);
+    dispatch(deleteContact(id));
   }
 
   return (
@@ -93,14 +70,14 @@ export default function App() {
       />
 
       <h2>Contacts</h2>
-      <Filter filterContacts={filterContacts} />
+      <Filter filterContacts={filterer} />
 
-      {/* <ContactList
+      <ContactList
         filter={filter}
         contacts={contacts}
         key={contacts.key}
-        deleteContact={deleteContact}
-      /> */}
+        deleteContact={removeContact}
+      />
     </div>
   );
 }
